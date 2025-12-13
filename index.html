@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Backend API Tester</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+        }
+
+        .section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        h2 {
+            color: #667eea;
+            margin-top: 0;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            color: #555;
+            font-size: 16px;
+            margin: 15px 0 10px 0;
+        }
+
+        form {
+            margin: 10px 0;
+        }
+
+        input,
+        select,
+        button,
+        textarea {
+            padding: 10px;
+            margin: 5px 0;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .response {
+            background: #f9f9f9;
+            border: 2px solid #ddd;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 6px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            max-height: 250px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .success {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+
+        .error {
+            border-color: #dc3545;
+            background: #f8d7da;
+        }
+
+        .token-display {
+            background: #fff3cd;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 6px;
+            font-size: 11px;
+            word-break: break-all;
+            border: 2px solid #ffc107;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+            margin: 2px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🚀 Complete Microservices API Tester</h1>
+
+    <div class="container">
+        <!-- AUTH SERVICE -->
+        <div class="section">
+            <h2>🔐 Auth Service</h2>
+
+            <h3>Register</h3>
+            <form id="registerForm">
+                <div class="grid-2">
+                    <input name="first_name" placeholder="First Name" required>
+                    <input name="last_name" placeholder="Last Name" required>
+                </div>
+                <input name="email" type="email" placeholder="Email" required>
+                <input name="password" type="password" placeholder="Password" required>
+                <select name="role" required>
+                    <option value="">Select Role</option>
+                    <option value="buyer">Buyer</option>
+                    <option value="seller">Seller</option>
+                </select>
+                <button type="submit">Register</button>
+            </form>
+            <div id="registerResponse" class="response"></div>
+
+            <h3>Login</h3>
+            <form id="loginForm">
+                <input name="email" type="email" placeholder="Email" required>
+                <input name="password" type="password" placeholder="Password" required>
+                <button type="submit">Login</button>
+            </form>
+            <div id="loginResponse" class="response"></div>
+            <div id="tokenDisplay" class="token-display" style="display:none;"></div>
+
+            <h3>User Actions</h3>
+            <button onclick="getCurrentUser()">Get My Info</button>
+            <button onclick="getSessions()">Get Active Sessions</button>
+            <button onclick="logout()">Logout</button>
+            <div id="userInfoResponse" class="response"></div>
+            <div id="sessionsResponse" class="response"></div>
+
+            <h3>Change Password</h3>
+            <form id="changePasswordForm">
+                <input name="old_password" type="password" placeholder="Old Password" required>
+                <input name="new_password" type="password" placeholder="New Password" required>
+                <button type="submit">Change Password</button>
+            </form>
+            <div id="changePasswordResponse" class="response"></div>
+        </div>
+
+        <!-- PRODUCT SERVICE -->
+        <div class="section">
+            <h2>📦 Product Service</h2>
+
+            <h3>Get All Products (Public)</h3>
+            <button onclick="getProducts()">Get All Products</button>
+            <div id="productsResponse" class="response"></div>
+
+            <h3>Get Product by ID</h3>
+            <form id="getProductForm">
+                <input name="id" type="number" placeholder="Product ID" required>
+                <button type="submit">Get Product</button>
+            </form>
+            <div id="getProductResponse" class="response"></div>
+
+            <h3>Create Product (Seller Only)</h3>
+            <form id="createProductForm">
+                <input name="name" placeholder="Product Name" required>
+                <textarea name="description" placeholder="Description" rows="2" required></textarea>
+                <input name="price" type="number" step="0.01" placeholder="Price" required>
+                <input name="stock" type="number" placeholder="Stock" required>
+                <button type="submit">Create Product</button>
+            </form>
+            <div id="createProductResponse" class="response"></div>
+
+            <h3>Update Product</h3>
+            <form id="updateProductForm">
+                <input name="id" type="number" placeholder="Product ID" required>
+                <input name="name" placeholder="New Name">
+                <input name="price" type="number" step="0.01" placeholder="New Price">
+                <input name="stock" type="number" placeholder="New Stock">
+                <button type="submit">Update Product</button>
+            </form>
+            <div id="updateProductResponse" class="response"></div>
+
+            <h3>Get My Products (Seller)</h3>
+            <button onclick="getSellerProducts()">Get My Products</button>
+            <div id="sellerProductsResponse" class="response"></div>
+
+            <h3>Delete Product</h3>
+            <form id="deleteProductForm">
+                <input name="id" type="number" placeholder="Product ID" required>
+                <button type="submit">Delete Product</button>
+            </form>
+            <div id="deleteProductResponse" class="response"></div>
+        </div>
+
+        <!-- ORDER SERVICE -->
+        <div class="section">
+            <h2>🛒 Order Service</h2>
+
+            <h3>Create Order</h3>
+            <form id="createOrderForm">
+                <input name="product_id" type="number" placeholder="Product ID" required>
+                <input name="quantity" type="number" placeholder="Quantity" required>
+                <button type="submit">Create Order</button>
+            </form>
+            <div id="createOrderResponse" class="response"></div>
+
+            <h3>Get My Orders (Buyer)</h3>
+            <button onclick="getOrders()">Get My Orders</button>
+            <div id="ordersResponse" class="response"></div>
+
+            <h3>Get Order by ID</h3>
+            <form id="getOrderForm">
+                <input name="id" type="number" placeholder="Order ID" required>
+                <button type="submit">Get Order</button>
+            </form>
+            <div id="getOrderResponse" class="response"></div>
+
+            <h3>Get Seller Orders</h3>
+            <button onclick="getSellerOrders()">Get Orders for My Products</button>
+            <div id="sellerOrdersResponse" class="response"></div>
+
+            <h3>Update Order Status (Seller)</h3>
+            <form id="updateOrderStatusForm">
+                <input name="id" type="number" placeholder="Order ID" required>
+                <select name="status" required>
+                    <option value="">Select Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="processing">Processing</option>
+                    <option value="shipped">Shipped</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+                <button type="submit">Update Status</button>
+            </form>
+            <div id="updateOrderStatusResponse" class="response"></div>
+
+            <h3>Order Actions (Seller)</h3>
+            <form id="approveOrderForm" style="display:inline-block; width:48%;">
+                <input name="id" type="number" placeholder="Order ID" required>
+                <button type="submit" class="btn-small">Approve</button>
+            </form>
+            <form id="rejectOrderForm" style="display:inline-block; width:48%;">
+                <input name="id" type="number" placeholder="Order ID" required>
+                <button type="submit" class="btn-small">Reject</button>
+            </form>
+            <div id="orderActionsResponse" class="response"></div>
+
+            <h3>Cancel Order (Buyer)</h3>
+            <form id="cancelOrderForm">
+                <input name="id" type="number" placeholder="Order ID" required>
+                <button type="submit">Cancel Order</button>
+            </form>
+            <div id="cancelOrderResponse" class="response"></div>
+        </div>
+
+        <!-- PAYMENT SERVICE -->
+        <div class="section">
+            <h2>💳 Payment Service</h2>
+
+            <h3>Add Credit Card</h3>
+            <form id="addCardForm">
+                <input name="card_number" placeholder="Card Number (16 digits)" maxlength="16" required>
+                <div class="grid-2">
+                    <input name="expiry_month" type="number" placeholder="MM" min="1" max="12" required>
+                    <input name="expiry_year" type="number" placeholder="YYYY" min="2024" required>
+                </div>
+                <input name="cvv" placeholder="CVV" maxlength="4" required>
+                <input name="cardholder_name" placeholder="Cardholder Name" required>
+                <button type="submit">Add Card</button>
+            </form>
+            <div id="addCardResponse" class="response"></div>
+
+            <h3>Get My Cards</h3>
+            <button onclick="getCards()">Get My Cards</button>
+            <div id="cardsResponse" class="response"></div>
+
+            <h3>Create Payment</h3>
+            <form id="createPaymentForm">
+                <input name="order_id" type="number" placeholder="Order ID" required>
+                <input name="credit_card_id" type="number" placeholder="Credit Card ID" required>
+                <input name="amount" type="number" step="0.01" placeholder="Amount" required>
+                <button type="submit">Make Payment</button>
+            </form>
+            <div id="createPaymentResponse" class="response"></div>
+
+            <h3>Get My Payments</h3>
+            <button onclick="getPayments()">Get My Payments</button>
+            <div id="paymentsResponse" class="response"></div>
+
+            <h3>Get Payment by ID</h3>
+            <form id="getPaymentForm">
+                <input name="id" type="number" placeholder="Payment ID" required>
+                <button type="submit">Get Payment</button>
+            </form>
+            <div id="getPaymentResponse" class="response"></div>
+
+            <h3>Refund Payment</h3>
+            <form id="refundPaymentForm">
+                <input name="id" type="number" placeholder="Payment ID" required>
+                <button type="submit">Refund Payment</button>
+            </form>
+            <div id="refundPaymentResponse" class="response"></div>
+        </div>
+
+        <!-- USER/ADDRESS SERVICE -->
+        <div class="section">
+            <h2>📍 Address Service</h2>
+
+            <h3>Add Address</h3>
+            <form id="addAddressForm">
+                <input name="street" placeholder="Street Address" required>
+                <div class="grid-2">
+                    <input name="city" placeholder="City" required>
+                    <input name="state" placeholder="State" required>
+                </div>
+                <div class="grid-2">
+                    <input name="postal_code" placeholder="Postal Code" required>
+                    <input name="country" placeholder="Country" required>
+                </div>
+                <button type="submit">Add Address</button>
+            </form>
+            <div id="addAddressResponse" class="response"></div>
+
+            <h3>Get My Addresses</h3>
+            <button onclick="getAddresses()">Get My Addresses</button>
+            <div id="addressesResponse" class="response"></div>
+
+            <h3>Update Address</h3>
+            <form id="updateAddressForm">
+                <input name="id" type="number" placeholder="Address ID" required>
+                <input name="street" placeholder="New Street">
+                <input name="city" placeholder="New City">
+                <button type="submit">Update Address</button>
+            </form>
+            <div id="updateAddressResponse" class="response"></div>
+
+            <h3>Delete Address</h3>
+            <form id="deleteAddressForm">
+                <input name="id" type="number" placeholder="Address ID" required>
+                <button type="submit">Delete Address</button>
+            </form>
+            <div id="deleteAddressResponse" class="response"></div>
+        </div>
+
+        <!-- HEALTH CHECKS -->
+        <div class="section">
+            <h2>❤️ Health Checks</h2>
+            <button onclick="checkHealth()">Check All Services</button>
+            <div id="healthResponse" class="response"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost';
+        let accessToken = localStorage.getItem('access_token');
+        let refreshToken = localStorage.getItem('refresh_token');
+
+        function updateTokenDisplay() {
+            const display = document.getElementById('tokenDisplay');
+            if (accessToken) {
+                display.style.display = 'block';
+                display.innerHTML = `<strong>✅ Logged In</strong><br>Token: ${accessToken.substring(0, 40)}...`;
+            } else {
+                display.style.display = 'none';
+            }
+        }
+        updateTokenDisplay();
+
+        async function apiCall(endpoint, options = {}) {
+            const headers = { 'Content-Type': 'application/json', ...options.headers };
+            if (accessToken && options.auth !== false) {
+                headers['Authorization'] = `Bearer ${accessToken}`;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
+                const contentType = response.headers.get('content-type');
+                let data = contentType?.includes('application/json') ? await response.json() : await response.text();
+                return { ok: response.ok, status: response.status, data };
+            } catch (error) {
+                return { ok: false, status: 0, data: { error: error.message } };
+            }
+        }
+
+        function display(id, response) {
+            const el = document.getElementById(id);
+            el.style.display = 'block';
+            el.className = 'response ' + (response.ok ? 'success' : 'error');
+            el.textContent = `Status: ${response.status}\n\n${JSON.stringify(response.data, null, 2)}`;
+        }
+
+        // AUTH
+        document.getElementById('registerForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(e.target));
+            display('registerResponse', await apiCall('/auth/register', { method: 'POST', body: JSON.stringify(data), auth: false }));
+        };
+
+        document.getElementById('loginForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(e.target));
+            const response = await apiCall('/auth/login', { method: 'POST', body: JSON.stringify(data), auth: false });
+            if (response.ok && response.data.access_token) {
+                accessToken = response.data.access_token;
+                refreshToken = response.data.refresh_token;
+                localStorage.setItem('access_token', accessToken);
+                localStorage.setItem('refresh_token', refreshToken);
+                updateTokenDisplay();
+            }
+            display('loginResponse', response);
+        };
+
+        async function getCurrentUser() {
+            display('userInfoResponse', await apiCall('/auth/me'));
+        }
+
+        async function getSessions() {
+            display('sessionsResponse', await apiCall('/auth/sessions'));
+        }
+
+        function logout() {
+            accessToken = null;
+            refreshToken = null;
+            localStorage.clear();
+            updateTokenDisplay();
+            alert('Logged out!');
+        }
+
+        document.getElementById('changePasswordForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(e.target));
+            display('changePasswordResponse', await apiCall('/auth/password', { method: 'PUT', body: JSON.stringify(data) }));
+        };
+
+        // PRODUCTS
+        async function getProducts() {
+            display('productsResponse', await apiCall('/products', { auth: false }));
+        }
+
+        document.getElementById('getProductForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = new FormData(e.target).get('id');
+            display('getProductResponse', await apiCall(`/product/${id}`, { auth: false }));
+        };
+
+        document.getElementById('createProductForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(e.target));
+            data.price = parseFloat(data.price);
+            data.stock = parseInt(data.stock);
+            display('createProductResponse', await apiCall('/product', { method: 'POST', body: JSON.stringify(data) }));
+        };
+
+        document.getElementById('updateProductForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const id = formData.get('id');
+            const data = {};
+            if (formData.get('name')) data.name = formData.get('name');
+            if (formData.get('price')) data.price = parseFloat(formData.get('price'));
+            if (formData.get('stock')) data.stock = parseInt(formData.get('stock'));
+            display('updateProductResponse', await apiCall(`/product/${id}`, { method: 'PUT', body: JSON.stringify(data) }));
+        };
+
+        async function getSellerProducts() {
+            display('sellerProductsResponse', await apiCall('/product/seller/products'));
+        }
+
+        document.getElementById('deleteProductForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = new FormData(e.target).get('id');
+            display('deleteProductResponse', await apiCall(`/product/${id}`, { method: 'DELETE' }));
+        };
+
+        // ORDERS
+        document.getElementById('createOrderForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(e.target));
+            data.product_id = parseInt(data.product_id);
+            data.quantity = parseInt(data.quantity);
+            display('createOrderResponse', await apiCall('/order', { method: 'POST', body: JSON.stringify(data) }));
+        };
+
+        async function getOrders() {
+            display('ordersResponse', await apiCall('/orders'));
+        }
+
+        document.getElementById('getOrderForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = new FormData(e.target).get('id');
+            display('getOrderResponse', await apiCall(`/order/${id}`));
+        };
+
+        async function getSellerOrders() {
+            display('sellerOrdersResponse', await apiCall('/order/seller/orders'));
+        }
+
+        document.getElementById('updateOrderStatusForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const id = formData.get('id');
+            const status = formData.get('status');
+            display('updateOrderStatusResponse', await apiCall(`/order/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }));
+        };
+
+        document.getElementById('approveOrderForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = new FormData(e.target).get('id');
+            display('orderActionsResponse', await apiCall(`/order/${id}/approve`, { method: 'POST' }));
+        };
+
+        document.getElementById('rejectOrderForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = new FormData(e.target).get('id');
+            display('orderActionsResponse', await apiCall(`/order/${id}/reject`, { method: 'POST' }));
+        };
+
+        document.getElementById('cancelOrderForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = new FormData(e.target).get('id');
+            display('cancelOrderResponse', await apiCall(`/order/${id}`, { method: 'DELETE' }));
+        };
+
+        // PAYMENTS
+        document.getElementById('addCardForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(e.target));
+            data.expiry_month = parseInt(data.expiry_month);
+            data.expiry_year = parseInt(data.expiry_year);
+            display('addCardResponse', await apiCall('/pay/credit-cards', { method: 'POST', body: JSON.stringify(data) }));
+        };
+
+        async function getCards() {
+            display('cardsResponse', await apiCall('/pay/credit-cards'));
+        }
+
+        document.getElementById('createPaymentForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(e.target));
+            data.order_id = parseInt(data.order_id);
+            data.credit_card_id = parseInt(data.credit_card_id);
+            data.amount = parseFloat(data.amount);
+            display('createPaymentResponse', await apiCall('/pay', { method: 'POST', body: JSON.stringify(data) }));
+        };
+
+        async function getPayments() {
+            display('paymentsResponse', await apiCall('/payments'));
+        }
+
+        document.getElementById('getPaymentForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = new FormData(e.target).get('id');
+            display('getPaymentResponse', await apiCall(`/payments/${id}`));
+        };
+
+        document.getElementById('refundPaymentForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = new FormData(e.target).get('id');
+            display('refundPaymentResponse', await apiCall(`/payments/${id}/refund`, { method: 'POST' }));
+        };
+
+        // ADDRESSES
+        document.getElementById('addAddressForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(e.target));
+            display('addAddressResponse', await apiCall('/users/addresses', { method: 'POST', body: JSON.stringify(data) }));
+        };
+
+        async function getAddresses() {
+            display('addressesResponse', await apiCall('/users/addresses'));
+        }
+
+        document.getElementById('updateAddressForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const id = formData.get('id');
+            const data = {};
+            if (formData.get('street')) data.street = formData.get('street');
+            if (formData.get('city')) data.city = formData.get('city');
+            display('updateAddressResponse', await apiCall(`/users/addresses/${id}`, { method: 'PUT', body: JSON.stringify(data) }));
+        };
+
+        document.getElementById('deleteAddressForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = new FormData(e.target).get('id');
+            display('deleteAddressResponse', await apiCall(`/users/addresses/${id}`, { method: 'DELETE' }));
+        };
+
+        // HEALTH
+        async function checkHealth() {
+            const services = [
+                { name: 'auth', path: '/auth/health' },
+                { name: 'user', path: '/user/health' },
+                { name: 'product', path: '/product/health' },
+                { name: 'order', path: '/order/health' },
+                { name: 'payment', path: '/payment/health' }
+            ];
+            const results = {};
+            for (const service of services) {
+                const response = await apiCall(service.path, { auth: false });
+                results[service.name] = response.ok ? '✅ Healthy' : '❌ Down';
+            }
+            display('healthResponse', { ok: true, status: 200, data: results });
+        }
+    </script>
+</body>
+
+</html>
