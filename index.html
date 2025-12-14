@@ -507,7 +507,7 @@
         };
 
         async function getSellerProducts() {
-            display('sellerProductsResponse', await apiCall('/product/seller/products'));
+            display('sellerProductsResponse', await apiCall('/products/me'));
         }
 
         document.getElementById('deleteProductForm').onsubmit = async (e) => {
